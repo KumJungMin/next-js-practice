@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import "./globals.css";
+import { useEffect } from "react";
 
 // 3. layout.js 혹은 page.js에서 metadata를 export하면 html의 head 안에 내용을 생성할 수 있음
 export const metadata: Metadata = {
@@ -11,31 +12,31 @@ export const metadata: Metadata = {
 };
 
 // 2. children은 page.tsx에서 넘겨준다.
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // 서버 컴포넌트
+  // - useEffect, useState 등의 hook을 사용할 수 없다.
+  // - 서버 컴포넌트를 유저와 상호작용하지 않는 컴포넌트로 사용한다.
+  // - 보안이 필요한 정보를 서버 컴포넌트에서 처리한다.
+  const resp = await fetch("http://localhost:9999/topics/");
+  const topics = await resp.json();
   return (
     <html>
-      {/* 
-        Link를 사용하면, SPA를 구현할 수 있음
-        - SPA란, 하나의 페이지에서 모든 작업을 처리하는 앱
-          1. 페이지 리로딩이 없어짐 
-          2. 방문했던 페이지는 다운로드 하지 않음 
-          3. 미리 페이지를 다운로드함   
-      */}
       <body>
         <h1>
           <Link href="/">WEB</Link>
         </h1>
         <ol>
-          <li>
-            <Link href="/read/1">html</Link>
-          </li>
-          <li>
-            <a href="/read/2">css</a>
-          </li>
+          {topics.map((topic: { id: number; title: string }) => {
+            return (
+              <li key={topic.id}>
+                <Link href={`/read/${topic.id}`}>{topic.title}</Link>
+              </li>
+            );
+          })}
         </ol>
         {children}
         <ul>
