@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import "./globals.css";
-import { useEffect } from "react";
+import { Control } from "./Control";
 
 // 3. layout.js 혹은 page.js에서 metadata를 export하면 html의 head 안에 내용을 생성할 수 있음
 export const metadata: Metadata = {
@@ -17,11 +17,9 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // 서버 컴포넌트
-  // - useEffect, useState 등의 hook을 사용할 수 없다.
-  // - 서버 컴포넌트를 유저와 상호작용하지 않는 컴포넌트로 사용한다.
-  // - 보안이 필요한 정보를 서버 컴포넌트에서 처리한다.
-  const resp = await fetch("http://localhost:9999/topics/");
+  const resp = await fetch("http://localhost:9999/topics", {
+    cache: "no-store",
+  });
   const topics = await resp.json();
   return (
     <html>
@@ -39,17 +37,7 @@ export default async function RootLayout({
           })}
         </ol>
         {children}
-        <ul>
-          <li>
-            <Link href="/create">create</Link>
-          </li>
-          <li>
-            <Link href="/update/id">update</Link>
-          </li>
-          <li>
-            <button>delete</button>
-          </li>
-        </ul>
+        <Control />
       </body>
     </html>
   );
